@@ -2,11 +2,12 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
-<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.SplitPane?>
@@ -22,8 +23,8 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<?import javafx.scene.control.CheckBox?>
-<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.ToggleGroup?>
 <BorderPane id="background" fx:id="rootPane" prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.dvtrung.sound.controller.MainController">
     <top>
         <VBox BorderPane.alignment="CENTER">
@@ -57,7 +58,7 @@
                     <items>
                         <Button contentDisplay="CENTER" graphicTextGap="0.0" onAction="#handleOpenWaveFileAction" text="Open" />
                         <Region styleClass="spacer" />
-                        <Button onAction="#handleOpenWaveFileAction" text="Play" />
+                        <Button onAction="#handlePlay" text="Play" />
                         <Button layoutX="69.0" layoutY="10.0" onAction="#handleOpenWaveFileAction" text="Pause" />
                     </items>
                 </ToolBar>
@@ -73,11 +74,26 @@
                             <content>
                                 <VBox spacing="5.0">
                                     <children>
-                                        <CheckBox text="Show by Window" />
+                                        <RadioButton fx:id="entirePeriodRadio" text="Entire Period" selected="true" />
+                                        <RadioButton fx:id="currentWindowRadio" text="Current Window" />
                                         <Separator />
                                         <Label text="Position" />
                                         <HBox>
                                             <Slider fx:id="posSlider" max="0.0" prefWidth="500.0" HBox.hgrow="ALWAYS" />
+                                            <VBox.margin>
+                                                <Insets />
+                                            </VBox.margin>
+                                        </HBox>
+                                        <HBox>
+                                            <Label text="Window Size: " />
+                                            <TextField fx:id="textWindowSize" prefWidth="50"></TextField>
+                                            <Label text=" ms" />
+                                        </HBox>
+                                        <HBox>
+                                            <Slider fx:id="windowSizeSlider" min="20" max="100" showTickMarks="true" showTickLabels="true"
+                                                    value="25" minorTickCount="5"
+                                                    blockIncrement="5" snapToTicks="true"
+                                                    prefWidth="500.0" HBox.hgrow="ALWAYS" />
                                             <VBox.margin>
                                                 <Insets />
                                             </VBox.margin>
@@ -104,19 +120,24 @@
                                                 <ColumnConstraints />
                                                 <ColumnConstraints />
                                                 <ColumnConstraints />
+                                    <ColumnConstraints />
+                                    <ColumnConstraints />
                                             </columnConstraints>
                                             <rowConstraints>
                                                 <RowConstraints />
                                                 <RowConstraints />
                                                 <RowConstraints />
                                                 <RowConstraints />
+                                    <RowConstraints />
+                                    <RowConstraints />
+                                    <RowConstraints />
                                             </rowConstraints>
                                         </GridPane>
-                                        <Separator/>
+                                        <Separator />
                                         <GridPane alignment="CENTER_LEFT">
                                             <columnConstraints>
                                                 <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="100.0" />
-                                                <ColumnConstraints hgrow="SOMETIMES" prefWidth="100.0" halignment="RIGHT" />
+                                                <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" prefWidth="100.0" />
                                             </columnConstraints>
                                             <rowConstraints>
                                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
@@ -124,21 +145,26 @@
                                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                             </rowConstraints>
                                             <Label text="Loudness" GridPane.rowIndex="0" />
-                                            <Label fx:id="loudnessLabel" GridPane.columnIndex="1" GridPane.rowIndex="0" text="30dB"/>
+                                            <Label fx:id="loudnessLabel" text="30dB" GridPane.columnIndex="1" GridPane.rowIndex="0" />
                                             <Label text="Fundamental Frequency" GridPane.rowIndex="1" />
                                             <Label fx:id="fundamentalFrequencyLabel" text="400Hz" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                             <Label text="Timbre" GridPane.rowIndex="2" />
-                                            <Label GridPane.columnIndex="1" GridPane.rowIndex="2" text="none" />
+                                            <Label text="none" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                                             <columnConstraints>
                                                 <ColumnConstraints />
                                                 <ColumnConstraints />
                                                 <ColumnConstraints />
+                                    <ColumnConstraints />
+                                    <ColumnConstraints />
                                             </columnConstraints>
                                             <rowConstraints>
                                                 <RowConstraints />
                                                 <RowConstraints />
                                                 <RowConstraints />
                                                 <RowConstraints />
+                                    <RowConstraints />
+                                    <RowConstraints />
+                                    <RowConstraints />
                                             </rowConstraints>
                                         </GridPane>
                                     </children>

@@ -12,20 +12,22 @@ import javafx.scene.layout.VBox;
 import jp.ac.kyoto_u.kuis.le4music.Le4MusicUtils;
 import org.apache.commons.math3.complex.Complex;
 
+import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class SpectrumChart extends SoundChart {
     private LineChart spectrumChart;
+    NumberAxis xAxis, yAxis;
 
     @Override
     public void init() {
         super.init();
 
-        final NumberAxis xAxis = new NumberAxis();
+        xAxis = new NumberAxis();
         xAxis.setLabel("Frequency (Hz)");
-        final NumberAxis yAxis = new NumberAxis();
+        yAxis = new NumberAxis();
         yAxis.setLabel("Amplitude (dB)");
 
         /*
@@ -76,7 +78,8 @@ public class SpectrumChart extends SoundChart {
     }
 
     @Override
-    public void plot(double[] waveform, double sampleRate) {
+    public void plot(double[] waveform) {
+        final double maxFreq = 3000;
         final int fftSize = 1 << Le4MusicUtils.nextPow2(waveform.length);
         final int fftSize2 = (fftSize >> 1) + 1;
 
@@ -84,14 +87,15 @@ public class SpectrumChart extends SoundChart {
                 .map(w -> w / waveform.length)
                 .toArray();
 
-        final Complex[] spectrum = Le4MusicUtils.rfft(src);
+        Complex[] spectrum = Le4MusicUtils.rfft(src);
+        int len = (int)(maxFreq * fftSize / options.sampleRate);
 
         final double[] specLog = Arrays.stream(spectrum)
-                .mapToDouble(c -> 20.0 * Math.log10(c.abs()))
+                .mapToDouble(c -> Math.log10(c.abs()))
                 .toArray();
 
-        final ObservableList<XYChart.Data<Number, Number>> data = IntStream.range(0, fftSize2)
-                .mapToObj(i -> new XYChart.Data<Number, Number>(i * sampleRate / fftSize, specLog[i]))
+        final ObservableList<XYChart.Data<Number, Number>> data = IntStream.range(0, len)
+                .mapToObj(i -> new XYChart.Data<Number, Number>(i * options.sampleRate / fftSize, specLog[i]))
                 .collect(Collectors.toCollection(FXCollections::observableArrayList));
 
         final XYChart.Series<Number, Number> series = new XYChart.Series<>("Spectrum", data);
@@ -99,6 +103,11 @@ public class SpectrumChart extends SoundChart {
         spectrumChart.getData().clear();
         spectrumChart.getData().clear();
         spectrumChart.getData().add(series);
+
+        xAxis.setAutoRanging(false);
+        xAxis.setLowerBound(0);
+        xAxis.setUpperBound(len * options.sampleRate / fftSize);
+        xAxis.setTickUnit(100);
     }
 
     @Override
