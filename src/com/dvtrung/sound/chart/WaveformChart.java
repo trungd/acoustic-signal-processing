@@ -42,13 +42,9 @@ public class WaveformChart extends SoundChart {
     }
 
     @Override
-    public void plot(double[] waveform) {
-        if (options.bEntirePeriod && (data != null) && (data.size() == waveform.length)) {
-            currentPosMarker.setXValue(options.currentPos / options.sampleRate);
-            return;
-        }
-
-        double wf[] = options.bEntirePeriod ? waveform : getWindowWaveform(waveform);
+    public void plot(double[] wf) {
+        refreshMarker();
+        if (data != null) return;
 
         data = IntStream.range(0, wf.length)
                         .mapToObj(i -> new XYChart.Data<Number, Number>(i / options.sampleRate, wf[i]))
@@ -57,8 +53,6 @@ public class WaveformChart extends SoundChart {
         final XYChart.Series<Number, Number> series = new XYChart.Series<>();
         series.setName("Waveform");
         series.setData(data);
-
-        final XYChart.Series<Number, Number> series_line = new XYChart.Series<>();
 
         chart.setCreateSymbols(false);
         chart.getData().clear();
@@ -73,7 +67,13 @@ public class WaveformChart extends SoundChart {
         yAxis.setUpperBound(+bound);
 
         xAxis.setAutoRanging(false);
+        xAxis.setTickUnit(0.2);
+        xAxis.setMinorTickVisible(true);
         xAxis.setUpperBound((wf.length - 1) / options.sampleRate);
+    }
+
+    public void refreshMarker() {
+        currentPosMarker.setXValue(options.currentPos / options.sampleRate);
     }
 
     public Chart getChart() {

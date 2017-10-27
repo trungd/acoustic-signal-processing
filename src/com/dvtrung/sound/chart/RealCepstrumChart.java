@@ -1,5 +1,6 @@
 package com.dvtrung.sound.chart;
 
+import com.dvtrung.sound.Utils;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.chart.Chart;
@@ -18,6 +19,7 @@ import java.util.stream.IntStream;
 public class RealCepstrumChart extends SoundChart {
     private LineChart cepstrumChart;
     NumberAxis xAxis, yAxis;
+    ObservableList<XYChart.Data<Number, Number>> data_cepstrum;
 
     @Override
     public void init() {
@@ -36,9 +38,7 @@ public class RealCepstrumChart extends SoundChart {
 
     @Override
     public void plot(double[] waveform) {
-        if (options.bEntirePeriod) return;
-
-        double wf[] = options.bEntirePeriod ? waveform : getWindowWaveform(waveform);
+        double wf[] = getFrameWaveform(waveform);
 
         final int fftSize = 1 << Le4MusicUtils.nextPow2(wf.length);
         final int fftSize2 = (fftSize >> 1) + 1;
@@ -55,12 +55,12 @@ public class RealCepstrumChart extends SoundChart {
 
         Complex[] cepstrum = Le4MusicUtils.rfft(Arrays.copyOf(specLog, specLog.length - 1));
 
-        //for (int i = 13; i < cepstrum.length; i++) cepstrum[i] = new Complex(0, 0);
-        for (int i = 0; i < 13; i++) cepstrum[i] = new Complex(0, 0);
+        //for (int i = Utils.CEPSTRUM_LIFTER; i < cepstrum.length; i++) cepstrum[i] = new Complex(0, 0);
+        for (int i = 0; i < Utils.CEPSTRUM_LIFTER; i++) cepstrum[i] = new Complex(0, 0);
 
         double[] ret = Le4MusicUtils.irfft(cepstrum);
 
-        final ObservableList<XYChart.Data<Number, Number>> data_cepstrum = IntStream.range(0, ret.length)
+        data_cepstrum = IntStream.range(0, ret.length)
                 .mapToObj(i -> new XYChart.Data<Number, Number>(i * options.sampleRate / fftSize, ret[i]))
                 .collect(Collectors.toCollection(FXCollections::observableArrayList));
 
@@ -73,5 +73,5 @@ public class RealCepstrumChart extends SoundChart {
     public Chart getChart() {
         return cepstrumChart;
     }
-    public String getTitle() { return "Cepstrum (Real)"; }
+    public String getTitle() { return "Real Cepstrum (frame)"; }
 }

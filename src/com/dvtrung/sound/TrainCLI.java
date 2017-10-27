@@ -1,22 +1,22 @@
 package com.dvtrung.sound;
 
+import com.dvtrung.sound.train.StatisticalModel;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;
-import jp.ac.kyoto_u.kuis.le4music.Le4MusicUtils;
-
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.UnsupportedAudioFileException;
-import java.io.File;
-import java.io.IOException;
 
 public final class TrainCLI extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
         final String[] args = getParameters().getRaw().toArray(new String[0]);
-        Train.train(args[0]);
+
+        StatisticalModel.train("training/a", "a").save();
+        StatisticalModel.train("training/i", "i").save();
+        StatisticalModel.train("training/u", "u").save();
+        StatisticalModel.train("training/e", "e").save();
+        StatisticalModel.train("training/o", "o").save();
+
         Platform.exit();
     }
 }

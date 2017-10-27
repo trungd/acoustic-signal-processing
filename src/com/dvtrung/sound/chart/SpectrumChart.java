@@ -20,6 +20,7 @@ import java.util.stream.IntStream;
 public class SpectrumChart extends SoundChart {
     private LineChart spectrumChart;
     NumberAxis xAxis, yAxis;
+    double[] specLog;
 
     @Override
     public void init() {
@@ -79,6 +80,7 @@ public class SpectrumChart extends SoundChart {
 
     @Override
     public void plot(double[] waveform) {
+        if (specLog != null) return;
         final double maxFreq = 3000;
         final int fftSize = 1 << Le4MusicUtils.nextPow2(waveform.length);
         final int fftSize2 = (fftSize >> 1) + 1;
@@ -90,7 +92,7 @@ public class SpectrumChart extends SoundChart {
         Complex[] spectrum = Le4MusicUtils.rfft(src);
         int len = (int)(maxFreq * fftSize / options.sampleRate);
 
-        final double[] specLog = Arrays.stream(spectrum)
+        specLog = Arrays.stream(spectrum)
                 .mapToDouble(c -> Math.log10(c.abs()))
                 .toArray();
 

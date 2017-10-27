@@ -1,6 +1,5 @@
 package com.dvtrung.sound.chart;
 
-import com.dvtrung.sound.Options;
 import com.dvtrung.sound.Utils;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -41,7 +40,7 @@ public class AutocorrelationChart extends SoundChart {
     @Override
     public void plot(double[] waveform) {
 
-        double wf[] = getWindowWaveform(waveform);
+        double wf[] = getFrameWaveform(waveform);
         ac = new double[wf.length];
         Arrays.fill(ac, 0);
         int n = wf.length;

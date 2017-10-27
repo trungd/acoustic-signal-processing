@@ -1,6 +1,5 @@
 package com.dvtrung.sound.chart;
 
-import com.sun.tools.javac.util.ArrayUtils;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.chart.Chart;
@@ -20,6 +19,10 @@ public class CepstrumChart extends SoundChart {
     private LineChart cepstrumChart;
     NumberAxis xAxis, yAxis;
 
+    ObservableList<XYChart.Data<Number, Number>> data_cepstrum;
+    ObservableList<XYChart.Data<Number, Number>> data_spectrum;
+
+
     @Override
     public void init() {
         super.init();
@@ -37,9 +40,7 @@ public class CepstrumChart extends SoundChart {
 
     @Override
     public void plot(double[] waveform) {
-        if (options.bEntirePeriod) return;
-
-        double wf[] = options.bEntirePeriod ? waveform : getWindowWaveform(waveform);
+        double wf[] = getFrameWaveform(waveform);
 
         final int fftSize = 1 << Le4MusicUtils.nextPow2(wf.length);
         final int fftSize2 = (fftSize >> 1) + 1;
@@ -58,7 +59,7 @@ public class CepstrumChart extends SoundChart {
         //int len = (int)(maxFreq * fftSize / sampleRate);
         int len = specLog.length;
 
-        final ObservableList<XYChart.Data<Number, Number>> data_spectrum = IntStream.range(0, len)
+        data_spectrum = IntStream.range(0, len)
                 .mapToObj(i -> new XYChart.Data<Number, Number>(i * options.sampleRate / fftSize, specLog[i]))
                 .collect(Collectors.toCollection(FXCollections::observableArrayList));
 
@@ -70,7 +71,7 @@ public class CepstrumChart extends SoundChart {
 
         double[] ret = Le4MusicUtils.irfft(cepstrum);
 
-        final ObservableList<XYChart.Data<Number, Number>> data_cepstrum = IntStream.range(0, ret.length)
+        data_cepstrum = IntStream.range(0, ret.length)
                 .mapToObj(i -> new XYChart.Data<Number, Number>(i * options.sampleRate / fftSize, ret[i]))
                 .collect(Collectors.toCollection(FXCollections::observableArrayList));
 
@@ -84,5 +85,5 @@ public class CepstrumChart extends SoundChart {
     public Chart getChart() {
         return cepstrumChart;
     }
-    public String getTitle() { return "Cepstrum"; }
+    public String getTitle() { return "Spectrogram + Cepstrum (frame)"; }
 }

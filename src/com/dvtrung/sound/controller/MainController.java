@@ -3,6 +3,7 @@ package com.dvtrung.sound.controller;
 import com.dvtrung.sound.Options;
 import com.dvtrung.sound.Utils;
 import com.dvtrung.sound.chart.*;
+import com.dvtrung.sound.train.TrainingHelper;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -10,8 +11,10 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.*;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
+import javafx.scene.control.TextInputDialog;
+import javafx.scene.input.MouseDragEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
@@ -23,6 +26,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class MainController implements Initializable {
@@ -31,19 +35,14 @@ public class MainController implements Initializable {
     @FXML private Label statusLabel;
     @FXML private VBox checkBoxPane;
     @FXML private Slider posSlider;
-    @FXML private Slider windowSizeSlider;
-    @FXML private Label fundamentalFrequencyLabel, loudnessLabel;
-    @FXML private CheckBox showWindowCheckBox;
-    @FXML private RadioButton entirePeriodRadio;
-    @FXML private RadioButton currentWindowRadio;
-    @FXML private TextField textWindowSize;
+    @FXML private Label fundamentalFrequencyLabel, loudnessLabel, vowelLabel;
+    @FXML private Label textFrameDuration;
 
     private WaveformChart waveformChart;
+    private WaveformFrameChart waveformFrameChart;
     private SpectrumChart spectrumChart;
     private SpectrogramChart spectrogramChart;
-    //private LoudnessChart loudnessChart = new LoudnessChart();
     private AutocorrelationChart autocorrelationChart;
-    //private FundamentalFrequencyChart fundamentalFrequencyChart = new FundamentalFrequencyChart();
     private CepstrumChart cepstrumChart;
     private RealCepstrumChart realCepstrumChart;
     private RecognitionResultChart recognitionResultChart;
@@ -71,31 +70,14 @@ public class MainController implements Initializable {
             }
         });
 
-        entirePeriodRadio.setOnMouseClicked(new EventHandler<MouseEvent>() {
+        posSlider.setOnMouseDragExited(new EventHandler<MouseDragEvent>() {
             @Override
-            public void handle(MouseEvent event) {
-                Options.getInstance().bEntirePeriod = true;
-                currentWindowRadio.setSelected(false);
-                plot();
+            public void handle(MouseDragEvent event) {
+                waveformChart.refreshMarker();
             }
         });
 
-        currentWindowRadio.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                Options.getInstance().bEntirePeriod = false;
-                entirePeriodRadio.setSelected(false);
-                plot();
-            }
-        });
-
-        windowSizeSlider.setOnMouseDragged(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                textWindowSize.setText(String.valueOf(windowSizeSlider.getValue()));
-                Options.getInstance().frameSize = (int)Options.getInstance().sampleRate * (int)windowSizeSlider.getValue() / 1000;
-            }
-        });
+        textFrameDuration.setText(String.valueOf(options.getFrameDurationInMilis()));
     }
 
     private void setPos(int pos) {
@@ -120,8 +102,8 @@ public class MainController implements Initializable {
     }
 
     @FXML
-    private final void handleSaveChartAsImageFileAction(final ActionEvent ev) {
-
+    private final void handlePause(final ActionEvent ev) {
+        player.stop();
     }
 
     @FXML
@@ -130,18 +112,10 @@ public class MainController implements Initializable {
     }
 
     @FXML
-    private final void handleResetZoomAction(final  ActionEvent ev) {
-        //xAxis.setLowerBound(0.0);
-        //xAxis.setUpperBound(sampleRate * 0.5);
-        //yAxis.setLowerBound(Le4MusicUtils.spectrumAmplitudeLowerBound);
-        //yAxis.setUpperBound(Le4MusicUtils.spectrumAmplitudeUpperBound);
-    }
-
-    @FXML
     private final void handleOpenWaveFileAction(final ActionEvent ev) {
         final FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open WAV File");
-        fileChooser.setInitialDirectory(new File("/Users/trung/Desktop"));
+        //fileChooser.setInitialDirectory(new File("/Users/trung/Desktop"));
         fileChooser.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("Wav Files", "*.wav"),
                 new FileChooser.ExtensionFilter("All Files", "*.*")
@@ -166,9 +140,13 @@ public class MainController implements Initializable {
         } catch (LineUnavailableException e) {
             e.printStackTrace();
         }
+
         plot();
     }
 
+    /**
+     * Plot all visible charts
+     */
     private void plot() {
         if (options.waveform == null) return;
 
@@ -181,6 +159,7 @@ public class MainController implements Initializable {
         fundamentalFrequencyLabel.setText(
                 String.valueOf(Utils.getFundamentalFrequency(options.waveform, options.currentPos)) + "Hz");
         loudnessLabel.setText(Utils.getLoudness() + "dB");
+        vowelLabel.setText(TrainingHelper.getInstance().getLabel(options.waveform, options.currentPos));
 
         statusLabel.setText("Ready");
     }
@@ -195,11 +174,13 @@ public class MainController implements Initializable {
             format = stream.getFormat();
             options.waveform = Le4MusicUtils.readWaveformMonaural(stream);
             Options.getInstance().sampleRate = stream.getFormat().getSampleRate();
-            Options.getInstance().frameSize = (int)(Options.getInstance().sampleRate / 40);
+            Options.getInstance().frameSize = (int)(Options.getInstance().sampleRate / 50);
             posSlider.setMin(0);
-            posSlider.setMax(options.waveform.length);
+            posSlider.setMax(options.waveform.length - options.frameSize - 1);
 
             resetChart();
+            textFrameDuration.setText(String.valueOf(options.getFrameDurationInMilis()));
+
 
         } catch (IOException e) {
             Le4MusicUtils.showAlertAndWait("I/O Error: " + file, e);
@@ -210,22 +191,22 @@ public class MainController implements Initializable {
         }
     }
 
-    //
-    // Create new charts on file open
-    //
+    /**
+     * Create new charts on file open
+     */
     private void resetChart() {
         waveformChart = new WaveformChart();
+        waveformFrameChart = new WaveformFrameChart();
         spectrumChart = new SpectrumChart();
         spectrogramChart = new SpectrogramChart();
-        //loudnessChart = new LoudnessChart();
         autocorrelationChart = new AutocorrelationChart();
-        //fundamentalFrequencyChart = new FundamentalFrequencyChart();
         cepstrumChart = new CepstrumChart();
         realCepstrumChart = new RealCepstrumChart();
         recognitionResultChart = new RecognitionResultChart();
 
         arrChart.clear();
         arrChart.add(waveformChart);
+        arrChart.add(waveformFrameChart);
         arrChart.add(spectrumChart);
         arrChart.add(spectrogramChart);
         arrChart.add(autocorrelationChart);
@@ -233,6 +214,7 @@ public class MainController implements Initializable {
         arrChart.add(realCepstrumChart);
         arrChart.add(recognitionResultChart);
 
+        checkBoxPane.getChildren().clear();
         for (SoundChart chart: arrChart) {
             chart.init();
             chart.getCheckBox().setOnAction(e -> handleChartToggleAction(e));
@@ -241,5 +223,18 @@ public class MainController implements Initializable {
 
         waveformChart.getCheckBox().setSelected(true);
         handleChartToggleAction(null);
+    }
+
+    @FXML
+    private void handleChangeFrameDuration(final ActionEvent ev) {
+        TextInputDialog dialog = new TextInputDialog(String.valueOf(options.getFrameDurationInMilis()));
+        dialog.setTitle("Frame Duration");
+        dialog.setHeaderText("Frame Duration in Miliseconds");
+        Optional<String> result = dialog.showAndWait();
+        if (result.isPresent()) {
+            options.setFrameDurationInMilis(Integer.parseInt(result.get()));
+            textFrameDuration.setText(result.get());
+            posSlider.setMax(options.waveform.length - options.frameSize - 1);
+        }
     }
 }

@@ -18,19 +18,22 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import static com.dvtrung.sound.Utils.ZERO_CROSSING_VOICED_SOUND_DIFFERENCE_RANGE;
 import static com.dvtrung.sound.Utils.zeroCrossingRate;
 
 public class SpectrogramChart extends SoundChart {
     private LineChartWithSpectrogram<Number, Number> chart;
+    NumberAxis xAxis, yAxis;
+    double[][] specLog;
 
     @Override
     public void init() {
         super.init();
 
-        final NumberAxis xAxis = new NumberAxis();
+        xAxis = new NumberAxis();
         xAxis.setLabel("Time (seconds)");
         xAxis.setLowerBound(0.0);
-        final NumberAxis yAxis = new NumberAxis();
+        yAxis = new NumberAxis();
         yAxis.setLabel("Frequency (Hz)");
         yAxis.setLowerBound(0.0);
         chart = new LineChartWithSpectrogram<Number, Number>(xAxis, yAxis);
@@ -42,10 +45,10 @@ public class SpectrogramChart extends SoundChart {
 
     @Override
     public void plot(double[] waveform) {
-        if (!options.bEntirePeriod) return;
+        if (specLog != null) return;
 
-        final double frameDuration = Le4MusicUtils.frameDuration;
-        final double shiftDuration = frameDuration / 8.0;
+        final double frameDuration = 0.02;
+        final double shiftDuration = 0.005;
         final double nyquist = options.sampleRate * 0.5;
 
         final int frameSize = (int)Math.round(frameDuration * options.sampleRate);
@@ -61,32 +64,40 @@ public class SpectrogramChart extends SoundChart {
         final Stream<Complex[]> spectrogram = Le4MusicUtils.sliding(waveform, window, shiftSize)
                 .map(frame -> Le4MusicUtils.rfft(frame));
 
-        final double[][] specLog = spectrogram.map(
+        specLog = spectrogram.map(
                 sp -> Arrays.stream(sp).mapToDouble(c -> 20.0 * Math.log10(c.abs())).toArray()
         ).toArray(n -> new double[n][]);
 
-        chart.getData().add(getFundamentalFrequencyData(waveform));
+        chart.getData().clear();
+        chart.getData().add(getVoicedSoundData(waveform));
 
-        ((NumberAxis)chart.getXAxis()).setUpperBound(specLog.length * shiftDuration);
-        ((NumberAxis)chart.getYAxis()).setUpperBound(nyquist);
+        xAxis.setAutoRanging(false);
+        xAxis.setTickUnit(0.2);
+        xAxis.setMinorTickVisible(true);
+        xAxis.setUpperBound(specLog.length * shiftDuration);
+
+        yAxis.setAutoRanging(false);
+        yAxis.setTickUnit(0);
+        yAxis.setUpperBound(nyquist);
         chart.setParameters(specLog.length, fftSize2, nyquist);
 
         Arrays.stream(specLog).forEach(chart::addSpecLog);
     }
 
-    private XYChart.Series<Number, Number> getFundamentalFrequencyData(double[] waveform) {
+    private XYChart.Series<Number, Number> getVoicedSoundData(double[] waveform) {
         double[] ff = new double[waveform.length / options.frameSize];
         double[] zcr = new double[waveform.length / options.frameSize];
 
         for (int i = 0; i < options.getFrameCount(); i++) {
             zcr[i] = zeroCrossingRate(waveform, i * options.frameSize) * (options.sampleRate / options.frameSize);
             ff[i] = Utils.getFundamentalFrequency(waveform, i * options.frameSize);
-            int range = 400;
+            int range = ZERO_CROSSING_VOICED_SOUND_DIFFERENCE_RANGE;
             if ((zcr[i] > 2 * ff[i] + range) || (zcr[i] < 2 * ff[i] - range)) ff[i] = 0;
+            else ff[i] = options.sampleRate * 0.25;
         }
 
-        ObservableList<XYChart.Data<Number, Number>> data = IntStream.range(0, waveform.length / options.frameSize)
-                .mapToObj(i -> new XYChart.Data<Number, Number>((i * options.frameSize + options.frameSize / 2) / options.sampleRate, ff[i]))
+        ObservableList<XYChart.Data<Number, Number>> data = IntStream.range(0, waveform.length / options.frameSize * 2)
+                .mapToObj(i -> new XYChart.Data<Number, Number>((i / 2 + i % 2) * options.frameSize / options.sampleRate, ff[i / 2]))
                 .collect(Collectors.toCollection(FXCollections::observableArrayList));
 
         final XYChart.Series<Number, Number> series = new XYChart.Series<>();
