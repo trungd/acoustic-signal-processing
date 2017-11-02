@@ -20,7 +20,11 @@
 
 ## Waveform
 
+Waveform of entire period with marker indicating current position.
+
 ## Waveform (frame)
+
+Waveform of current frame
 
 ## Spectrum
 
@@ -32,9 +36,9 @@ Spectrogram with voiced / unvoiced period recognition by zero-crossing rate.
 
 Autocorrelation and fundamental frequency position (second peak)
 
-## Spectrogram + Cepstrum (frame)
+## Spectrum + Cepstrum (frame)
 
-Display cepstrum (default: lifter 13) along with spectrogram
+Display cepstrum (default: order 13) along with spectrogram
 
 ## Real Cepstrum
 
