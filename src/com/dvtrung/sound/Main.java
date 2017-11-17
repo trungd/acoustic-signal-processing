@@ -1,6 +1,6 @@
 package com.dvtrung.sound;
 
-import com.dvtrung.sound.controller.MainController;
+import com.dvtrung.sound.controllers.MainController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -14,7 +14,7 @@ public final class Main extends Application {
     public void start(Stage primaryStage) throws IOException {
         primaryStage.setTitle(getClass().getName());
 
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("Main.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("res/Main.fxml"));
         BorderPane rootPane = loader.load();
         MainController controller = loader.getController();
         controller.rootPane = rootPane;

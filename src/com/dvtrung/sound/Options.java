@@ -10,15 +10,21 @@ public class Options {
     // Current frame's position
     public int currentPos;
     // Size of a frame
-    public int frameSize;
     public double sampleRate = Le4MusicUtils.sampleRate;
+    public int frameSize = (int)(Le4MusicUtils.frameInterval * Le4MusicUtils.sampleRate);
     public double[] waveform;
+    // is recording now
+    public boolean recording = false;
 
     public static Options getInstance() {
         if (options == null) {
             options = new Options();
             return options;
         } else return options;
+    }
+
+    public static void newInstance() {
+        options = null;
     }
 
     public int getFrameCount() {
@@ -29,9 +35,15 @@ public class Options {
         return 1000 * frameSize / (int)sampleRate;
     }
 
+    public double getFrameDuration() {
+        return frameSize / sampleRate;
+    }
+
     public void setFrameDurationInMilis(int duration) {
         frameSize = duration * (int)sampleRate / 1000;
     }
 
     public double getCurrentTime() { return currentPos / sampleRate; }
+
+    public void setRecording(boolean r) { recording = r; }
 }
