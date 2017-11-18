@@ -140,7 +140,7 @@ public class MainController implements Initializable {
     private final void handleShowSeparationDlg(final ActionEvent ev) {
         Stage stage = new Stage();
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("../res/SourceSeparator.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("../res/view/SourceSeparator.fxml"));
             Parent root = loader.load();
             stage.setScene(new Scene(root));
             stage.setTitle("Source Separator");
@@ -372,7 +372,7 @@ public class MainController implements Initializable {
     public void handleShowKaraokeDlg(ActionEvent actionEvent) {
         Stage stage = new Stage();
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("../res/Karaoke.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("../res/view/Karaoke.fxml"));
             Parent root = loader.load();
             stage.setScene(new Scene(root));
             stage.setTitle("Karaoke");

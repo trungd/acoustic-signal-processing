@@ -1,28 +1,30 @@
 # acoustic-signal-processing
 
-# Libraries
+Implementations of voice, music and other acoustic signal processing techniques with explicative GUI.
 
-- [Commons Math: The Apache Commons Mathematics Library](http://commons.apache.org/proper/commons-math/)
+# Implementations
 
-- [Commons CLI](http://commons.apache.org/proper/commons-cli/)
+- Matrix and Vector Manipulations
 
-- [Utilities Library (for class use)](http://winnie.kuis.kyoto-u.ac.jp/~itoyama/le4-music/lib/le4music.jar)
+- Hidden Markov Model with MFCC as feature vector for simple voice recognition
+
+- Non-negative Matrix Factorization for Sound Separation 
+
+- Autocorrelation / Subharmonic Summation for pitch detection
 
 # Features
 
-- Read data series from .wav file and display several charts in entire period or defined frame length.
+- Real-time or file input
 
-- Calculate loudness, fundamental frequency and make prediction on which Japanese vowel sounded.
+- Display multiple charts as of entire period or specified frame length.
 
-- Separate source component (spectral envelop) and filter component.
+- Display calculation and recognition results: loudness, fundamental frequency, Japanese vowel prediction,...
 
 # Chart List
 
-## Waveform
+## Waveform (current frame / entire period)
 
 Waveform of entire period with marker indicating current position.
-
-## Waveform (frame)
 
 Waveform of current frame.
 
@@ -40,10 +42,14 @@ Autocorrelation and fundamental frequency position (second peak)
 
 Display filter spectrum (default: lifter order 13) in comparison with original spectrum.
 
-## Real Cepstrum
-
-Source spectrum
-
 ## Recognition Result
 
 Using saved training result to determine a / i / u / e / o period.
+
+# Libraries
+
+- [Commons Math: The Apache Commons Mathematics Library](http://commons.apache.org/proper/commons-math/)
+
+- [Commons CLI](http://commons.apache.org/proper/commons-cli/)
+
+- [Utilities Library (for class use)](http://winnie.kuis.kyoto-u.ac.jp/~itoyama/le4-music/lib/le4music.jar)
