@@ -14,7 +14,7 @@ public final class Main extends Application {
     public void start(Stage primaryStage) throws IOException {
         primaryStage.setTitle(getClass().getName());
 
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("gui/view/Main.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("views/Main.fxml"));
         BorderPane rootPane = loader.load();
         MainController controller = loader.getController();
         controller.rootPane = rootPane;
