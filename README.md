@@ -4,8 +4,6 @@ Voice/Music acoustic signal processing techniques with explicative GUI.
 
 # Implementations
 
-- [ ] Matrix and Vector Manipulations
-
 - [ ] Hidden Markov Model with MFCC as feature vector for simple voice recognition
 
 - [x] Non-negative Matrix Factorization for Sound Separation 
