@@ -1,24 +1,22 @@
 # acoustic-signal-processing
 
-Implementations of voice, music and other acoustic signal processing techniques with explicative GUI.
+Voice/Music acoustic signal processing techniques with explicative GUI.
 
 # Implementations
 
-- Matrix and Vector Manipulations
+- [ ] Hidden Markov Model with MFCC as feature vector for simple voice recognition
 
-- Hidden Markov Model with MFCC as feature vector for simple voice recognition
+- [x] Non-negative Matrix Factorization for Sound Separation 
 
-- Non-negative Matrix Factorization for Sound Separation 
-
-- Autocorrelation / Subharmonic Summation for pitch detection
+- [x] Autocorrelation / Subharmonic Summation for pitch detection
 
 # Features
 
-- Real-time or file input
+- [x] Real-time or file input
 
-- Display multiple charts as of entire period or specified frame length.
+- [x] Display multiple charts as of entire period or specified frame length.
 
-- Display calculation and recognition results: loudness, fundamental frequency, Japanese vowel prediction,...
+- [x] Display calculation and recognition results: loudness, fundamental frequency, Japanese vowel prediction,...
 
 # Chart List
 
