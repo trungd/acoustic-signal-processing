@@ -9,7 +9,6 @@ import static com.dvtrung.sound.lib.Utils.cepstrumCoefficient;
 
 public class StatisticalModel extends BaseModel {
     public static int FRAME_LENGTH_IN_MILIS = 50;
-    private static StatisticalModel statisticalModel;
     private static TrainingResult[] trainingResults;
 
     public StatisticalModel(String[] labels) {
@@ -50,15 +49,6 @@ public class StatisticalModel extends BaseModel {
             }
         }
 
-        public double L(double[] wf) {
-            double[] x = getFeatureVector(wf);
-            double s = 0;
-            for (int d = 0; d < mu.length; d++) {
-                s -= Math.log(sigma[d]) + Math.pow(x[d] - mu[d], 2) / (2 * sigma[d] * sigma[d]);
-            }
-            return s;
-        }
-
         public void save() {
             File f = new File("training_results/" + label + ".dat");
             try (FileWriter fw = new FileWriter(f)) {
@@ -75,6 +65,15 @@ public class StatisticalModel extends BaseModel {
             } catch (IOException ioe) {
                 ioe.printStackTrace();
             }
+        }
+
+        public double L(double[] wf) {
+            double[] x = getFeatureVector(wf);
+            double s = 0;
+            for (int d = 0; d < mu.length; d++) {
+                s -= Math.log(sigma[d]) + Math.pow(x[d] - mu[d], 2) / (2 * sigma[d] * sigma[d]);
+            }
+            return s;
         }
 
         public double[] getFeatureVector(double[] wf) {

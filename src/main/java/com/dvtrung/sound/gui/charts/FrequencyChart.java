@@ -8,6 +8,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
+import org.apache.commons.math3.stat.StatUtils;
 
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -20,6 +21,8 @@ public class FrequencyChart extends LineChart<Number, Number> {
     double[][] freqs = new double[2][FRAME_COUNT];
 
     int initCount = 0;
+
+    double maxWf = 0;
 
     public FrequencyChart() {
         super(new NumberAxis(), new NumberAxis());
@@ -39,10 +42,17 @@ public class FrequencyChart extends LineChart<Number, Number> {
         //if (Utils.isVoiced_ZeroCrossingRate(wf)) fr = Utils.f2noteId(Utils.getFundamentalFrequencySHS(wf));
         //else fr = 0;
 
-        int f1 = Utils.getFundamentalFrequency(wf);
+        int f1 = Utils.f2noteId(Utils.getFundamentalFrequency(wf));
         int f2 = Utils.f2noteId(Utils.getFundamentalFrequencySHS(wf));
 
-        //if (!Utils.isVoiced_Correlation(wf, f2)) f2 = 0;
+        maxWf = Math.max(maxWf, StatUtils.max(wf));
+        if (StatUtils.max(wf) < maxWf / 20) {
+            f1 = 0; f2 = 0;
+        } else {
+            //if (!Utils.isVoiced_ZeroCrossingRate(wf)) f1 = 0;
+            //if (!Utils.isVoiced_Correlation(wf, f2)) f2 = 0;
+            //if (!Utils.isVoiced_Correlation(wf, f1)) f1 = 0;
+        }
 
         int n1 = Utils.f2noteId(f1);
         int n2 = Utils.f2noteId(f2);
@@ -77,7 +87,7 @@ public class FrequencyChart extends LineChart<Number, Number> {
         yAxis.setMinorTickCount(1);
 
         yAxis.setLowerBound(30);
-        yAxis.setUpperBound(80);
+        yAxis.setUpperBound(40);
 
         xAxis.setAutoRanging(false);
         xAxis.setTickUnit(10);

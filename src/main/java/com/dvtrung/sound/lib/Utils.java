@@ -182,8 +182,11 @@ public class Utils {
     }
 
     public static boolean isVoiced_ZeroCrossingRate(double[] wf) {
+        return isVoiced_ZeroCrossingRate(wf, getFundamentalFrequency(Utils.getFrameWaveform(wf, 0)));
+    }
+
+    public static boolean isVoiced_ZeroCrossingRate(double[] wf, double ff) {
         int zcr = zeroCrossingRate(wf, 0);
-        int ff = getFundamentalFrequency(Utils.getFrameWaveform(wf, 0));
         int range = ZERO_CROSSING_VOICED_SOUND_DIFFERENCE_RANGE;
         return !((zcr > 2 * ff + range) || (zcr < 2 * ff - range));
     }
@@ -198,7 +201,6 @@ public class Utils {
         double ppc = new PearsonsCorrelation().correlation(
                 Arrays.copyOfRange(wf_smooth, mid - periodSize, mid - 1),
                 Arrays.copyOfRange(wf_smooth, mid, mid + periodSize - 1));
-        System.out.println(ppc);
         return Math.abs(ppc) > 0.52;
     }
 

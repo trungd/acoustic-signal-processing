@@ -10,6 +10,31 @@ import java.io.File;
 import java.io.IOException;
 
 public class BaseModel {
+    public static double[][] extractFramesFromFile(String fileName, int frameLengthInMilis) {
+        double[] wf;
+        int sampleRate = 0;
+        try (final AudioInputStream stream = AudioSystem.getAudioInputStream(new File(fileName))) {
+            wf = Le4MusicUtils.readWaveformMonaural(stream);
+            sampleRate = (int)stream.getFormat().getSampleRate();
+            Options.getInstance().frameSize = (int)(Options.getInstance().sampleRate / 40);
+
+            int frameSize = sampleRate * frameLengthInMilis / 1000; // d
+            int frameCount = wf.length / frameSize; // total frames in all files
+
+            double[][] _wf = new double[frameCount][];
+            for (int j = 0; j < frameCount; j++) {
+                _wf[j] = new double[frameSize];
+                for (int d = 0; d < frameSize; d++) _wf[j][d] = wf[j * frameSize + d];
+            }
+            return _wf;
+        } catch (UnsupportedAudioFileException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public static double[][] extractFrames(String dir, int frameLengthInMilis) {
         File folder = new File(dir);
         File[] listOfFiles = folder.listFiles();
